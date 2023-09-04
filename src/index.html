@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width= device-width, intial-scale=1">
+        
+        <!--Title-->
+        <title>Space Dopers</title>
+
+        <!--Bootstrap-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
+
+        <style>
+
+
+        </style>
+    </head>
+    <body>
+        <nav class="navbar " style="background-color: #5a38c6;">
+            <div class="container-fluid">
+              <a class="navbar-brand" href="index.html">
+                <img src="logo.JPG" alt="Logo" width="140" height="100" class="d-inline-block align-text-center">
+                Space Dopers
+              </a>
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                  <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="#">Home</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Features</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Pricing</a>
+                  </li>
+                  
+                  
+                </ul>
+              </div>
+            </div>
+          </nav>
+          <div class="container-fluid">
+            <div class="row">
+              <main role="main" class="col-lg-12 d-flex justify-content-center">
+                <div id="loader" class="text-center">
+                  <p class="text-center">Loading...</p>
+                </div>
+                <div id="content">
+                  <h3>Account </h3>
+                  <span id="account"></span>
+                  <form onsubmit="App.createUser(); return false;">
+                    <label>Name:</label><br>
+                    <input type="text" id="newUser_name"><br>
+                    <label>Usage For:</label><br>
+                    <input type="text" id="newUser_content"><br>
+                    <input type="submit" value="Add">
+                    
+                  </form>
+                  <ul id="userList" class="list-unstyled">
+                    <div class="userTemplate" class="text" style="display: none">
+                      <label>
+                        
+                        <span class="content">User List goes here...</span>
+                      </label>
+                    </div>
+                  </ul>
+                  <ul id="joinedUserList" class="list-unstyled">
+                  </ul>
+                </div>
+              </main>
+            </div>
+        </div>
+
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+        <script src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+        <script src="vendor/web3/dist/web3.js"></script>
+        <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
+
+        <script src="app.js"></script>
+    </body>
+</html>
