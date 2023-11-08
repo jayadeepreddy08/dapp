@@ -17,6 +17,7 @@ contract Capstone{
         string content,
         bool joined
 
+
     );
     
 
