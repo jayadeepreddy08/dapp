@@ -58,8 +58,23 @@
                     <label>Usage For:</label><br>
                     <input type="text" id="newUser_content"><br>
                     <input type="submit" value="Add">
-                    
+                                  
                   </form>
+                  
+                  <input type = "file" id = "fileInput" required />
+                  <button onclick="uploadFile()">Upload File</button>
+                  <br>
+                  
+                  <p id= 'cid_html'> CID of Uploaded file is shown here.. </p>
+                  <br><br>
+                  <label for="cidInput">CID:</label>
+                  <input type="text" id="cidInput" />
+                  <button onclick="retrieveFile()">Retrieve File</button>
+                  <p id = 'filedata_html'>Retrived file data is shown here..</p>
+                  
+                  
+                  
+                  
                   <ul id="userList" class="list-unstyled">
                     <div class="userTemplate" class="text" style="display: none">
                       <label>
@@ -74,12 +89,125 @@
               </main>
             </div>
         </div>
+        
+        <script src="https://unpkg.com/ipfs-http-client/dist/index.min.js"></script>
+        
+	<script>
+	const ipfs = window.IpfsHttpClient.create('http://localhost:5001');
 
+	async function uploadFile() {
+  	const fileInput = document.getElementById('fileInput');
+  	console.log("file input: ",fileInput);
+  	
+  	const file = fileInput.files[0];
+  	console.log("file: ",file);
+  	
+  	const fileName = file.name;
+  	console.log(fileName);
+  	
+  	const fileContent = await readFileContent(file);
+        console.log('File Content:', fileContent);
+        
+  	if(file){
+  		try{
+  			const fileData = new FormData();
+  			fileData.append('file', file);
+  			
+  			const addedFile = await ipfs.add({ path: fileName, content: fileContent })
+  			console.log('Added Files:', addedFile);
+  		
+  			const cid = addedFile.cid.toString();
+  			document.getElementById("cid_html").innerHTML = cid;
+  			console.log('File uploaded to IPFS with CID:', cid);
+  			
+  			
+  		}catch (error) {
+  			console.warn('Check if files are selected');
+  			console.error('Error uploading File', error);
+  			return null;
+  		}
+  		
+  	} else{
+  		console.warn('No files selected');
+  	}
+
+}
+	async function retrieveFile(){
+		const cidInput = document.getElementById('cidInput');
+		const cid = cidInput.value.trim();
+		
+		if(cid){
+			try{
+				const response = await ipfs.cat(cid);
+				
+				const chunks = [];
+        			for await (const chunk of response) {
+            				chunks.push(...chunk);
+        			}
+        			
+
+        			// Decode the Buffer or Uint8Array to text
+        			const content = String.fromCharCode(...chunks);
+        			document.getElementById("filedata_html").innerHTML = content;
+        			console.log('File content from IPFS:', content);
+				
+			}catch (error){
+				console.error('Error retrieving File from IPFS: ', error);		
+			}
+			
+		}else {
+			console.warn('CID is required');
+		}
+	}
+	
+	function readFileContent(file) {
+    		return new Promise((resolve, reject) => {
+        		const reader = new FileReader();
+
+        		// Set up event listener for when the file reading is complete
+        		reader.onloadend = () => {
+            		const content = reader.result;
+            		resolve(content);
+        };
+
+        	// Set up event listener for errors during file reading
+        	reader.onerror = (error) => {
+            		reject(error);
+        };
+
+        	// Read the file content as text
+        	reader.readAsText(file);
+    });
+}
+	
+	/*async function addFileToIPFS(file) {
+	  	const fileData = new FormData();
+	  	fileData.append('file', file);
+		console.log("File data", fileData);
+	  	const addedFile = await ipfs.addAll(fileData);
+	  	console.log('Added Files:', addedFile);
+	  	if(addedFile && addedFile.length>0){
+	  	const cid = addedFile[0].cid.toString();
+	  	return cid;
+	  	}else{
+	  	 console.log('No files added');
+	  	 return null;
+	  	}
+}
+
+	async function retrieveFileFromIPFS(cid) {
+  		const data = await ipfs.cat(cid);
+  		return data;
+	}*/
+
+	
+	</script>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
         <script src="vendor/web3/dist/web3.js"></script>
         <script src="vendor/truffle-contract/dist/truffle-contract.js"></script>
 
         <script src="app.js"></script>
+        
     </body>
 </html>

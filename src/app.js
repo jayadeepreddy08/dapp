@@ -1,4 +1,4 @@
-const { uploadFile, retrieveFile } = require('./ipfs.js');
+//const { uploadFile, retrieveFile } = require('./ipfs.js');
 App = {
   loading: false,
   contracts: {},
@@ -9,8 +9,8 @@ App = {
         await App.loadAccount()
         await App.loadContract()
         await App.render()
-        await handleFileUpload(file)
-        await handleFileRetrieval(cid)
+        //await handleFileUpload(file)
+        //await handleFileRetrieval(cid)
         web3.eth.defaultAccount = App.account;
     },
     loadWeb3: async () => {
@@ -143,7 +143,8 @@ App = {
       //reloading the page automatically
       window.location.reload()
   
-    },     
+    },   
+    /*
     handleFileUpload: async (file) => {
       const cid = await uploadFile(file);
       console.log('File uploaded to IPFS with CID:', cid);
@@ -154,6 +155,7 @@ App = {
       const data = await retrieveFile(cid);
       console.log('File retrieved from IPFS:', data);
     },
+    */
     
 }
 $(() => {
