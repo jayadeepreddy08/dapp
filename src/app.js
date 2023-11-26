@@ -1,6 +1,6 @@
-//const { uploadFile, retrieveFile } = require('./ipfs.js');
 App = {
   loading: false,
+  loggedin: false,
   contracts: {},
     
     load: async () => {
@@ -9,8 +9,6 @@ App = {
         await App.loadAccount()
         await App.loadContract()
         await App.render()
-        //await handleFileUpload(file)
-        //await handleFileRetrieval(cid)
         web3.eth.defaultAccount = App.account;
     },
     loadWeb3: async () => {
@@ -50,29 +48,50 @@ App = {
         // Set the current blockchain account
         App.account = web3.eth.accounts[0]
         console.log(App.account)
-
     },
 
     loadContract: async () => {
       // Create a JavaScript version of the smart contract
+      try{
       const capstone = await $.getJSON('Capstone.json')
       App.contracts.Capstone = TruffleContract(capstone)
       App.contracts.Capstone.setProvider(App.web3Provider)
-      console.log(capstone)
+      console.log('Capstone contract:', App.contracts.Capstone);
       
+      const simplewallet = await $.getJSON('SimpleWallet.json')
+      App.contracts.SimpleWallet = TruffleContract(simplewallet)
+      App.contracts.SimpleWallet.setProvider(App.web3Provider)
+      console.log('App.contracts.SimpleWallet:', App.contracts.SimpleWallet);
+      
+      const userAuth = await $.getJSON('UserAuth.json')
+      App.contracts.UserAuth = TruffleContract(userAuth)
+      App.contracts.UserAuth.setProvider(App.web3Provider)
+      console.log('App.contracts.UserAuth:',App.contracts.UserAuth)
   
       // Hydrate the smart contract with values from the blockchain
       App.capstone = await App.contracts.Capstone.deployed()
+      App.simplewallet = await App.contracts.SimpleWallet.deployed()
+      App.userAuth = await App.contracts.UserAuth.deployed()
+      console.log('Capstone instance:', App.capstone);
+      console.log('SimpleWallet instance:', App.simplewallet);
+      console.log('UserAuth instamce:', App.userAuth)
+    } catch (error){
+      console.error('Error Loading contracts:',error);
+    }
+
     },
 
     render: async () => {
         // Prevent double render
-        if (App.loading) {
+       /* if (App.loading) {
+          return
+        }*/
+        if(App.loggedin){
           return
         }
     
         // Update app loading state
-        App.setLoading(true)
+        //App.setLoading(true)
     
         // Render Account
         $('#account').html(App.account)
@@ -81,18 +100,39 @@ App = {
         await App.renderUser()
     
         // Update loading state
-        App.setLoading(false)
+        //App.setLoading(false)
       },
+      /*
       setLoading: (boolean) => {
         App.loading = boolean
         const loader = $('#loader')
         const content = $('#content')
+        if(App.setLoggedin){
         if (boolean) {
           loader.show()
           content.hide()
         } else {
           loader.hide()
           content.show()
+        }
+      }
+      },*/
+      setLoggedin: (boolean) => {
+        App.loggedin = boolean
+        const login = $('#loggedin')
+        const afterLogin = $('#afterLogin')
+        const loader = $('#loader')
+        const content = $('#content')
+        if (boolean) {
+          login.hide()
+          afterLogin.show()
+          content.show()
+          loader.hide()
+        } else {
+          login.show()
+          afterLogin.hide()
+          loader.show()
+          content.hide()
         }
       },
 
@@ -135,29 +175,123 @@ App = {
       App.setLoading(true)
       const name = $('#newUser_name').val()
       const content = $('#newUser_content').val()
-      
 
       //Calling createUser function from smart contract Capstone.sol
       await App.capstone.createUser(name, content)
-
-      //reloading the page automatically
+      
+      //reloading the page automatically  
       window.location.reload()
   
-    },   
-    /*
-    handleFileUpload: async (file) => {
-      const cid = await uploadFile(file);
-      console.log('File uploaded to IPFS with CID:', cid);
     },
     
-    // Arrow function for handling file retrieval
-    handleFileRetrieval: async (cid) => {
-      const data = await retrieveFile(cid);
-      console.log('File retrieved from IPFS:', data);
+    transfer: async () => {
+      App.setLoading(true);
+
+      try {
+        // Replace '0x...' with the recipient address
+        const recipientAddress = '0xcA6bf8D81D6CCB0189bA05a042d1d0b2bD194820'; // Replace with the actual recipient address
+
+        // Ensure recipientAddress is a valid Ethereum address
+        if (!web3.isAddress(recipientAddress)) {
+        console.error('Invalid Ethereum address:', recipientAddress);
+        return;
+      }
+
+      // Log the version and provider to ensure web3 is properly initialized
+      console.log('Web3 version:', web3.version.api);
+      console.log('Web3 provider:', web3.currentProvider);
+
+      // Log the result of 'web3.toWei' to see if it's available
+      console.log('1 ether in wei:', web3.toWei('1', 'ether'));
+
+      // The amount to transfer in wei
+      const amountWei = web3.toWei('1', 'ether');
+
+      // Use the 'eth.sendTransaction' function to execute the transaction
+      web3.eth.sendTransaction({
+        to: recipientAddress,
+        from: '0x1368a3C1D30C081bB29B1C87a91AD4463F17780D', // Replace with the owner's address
+        value: amountWei,
+      }, function(error, transactionHash) {
+      if (!error) {
+        console.log('Transaction Hash:', transactionHash);
+      } else {
+        console.error('Error making payment:', error);
+      }
+      });
+      } catch (error) {
+      console.error('Error making payment:', error);
+      } 
     },
-    */
+
+    registerUser: async () => {
+      //App.setLoading(true);
+      App.setLoggedin(false);
+      const username = $('#register_username').val();
+      const password = $('#register_password').val();
+
+      try {
+        // Call the register function from the smart contract
+        await App.userAuth.register(username, password, { from: App.account });
+
+        // Set userExists to true as the user is now registered
+        App.userExists = true;
+        console.log('User registered!!')
+
+        // Reload the page or update the UI as needed
+        //window.location.reload();
+      }catch (error) {
+        console.error('Error registering user:', error);
+      } finally {
+        // Ensure loading state is reset
+       // App.setLoading(false);
+        App.setLoggedin(true);
+      }
+    },
+
+    loginUser: async () => {
+      //App.setLoading(true);
+      App.setLoggedin(false);
+      const username = $('#login_username').val();
+      const password = $('#login_password').val();
+  
+      try {
+          // Call the login function from the smart contract
+          await App.userAuth.login(username, password, { from: App.account });
+  
+          // Set userExists to true as the user is logged in
+          App.userExists = true;
+          console.log('User loggedin!!!!')
+          
+  
+          // Reload the page or update the UI as needed
+          //window.location.reload();
+      } catch (error) {
+          console.error('Error logging in:', error);
+      } finally {
+          // Ensure loading state is reset
+          //App.setLoading(false);
+          App.setLoggedin(true);
+      }
+  },
+  
+  getUser: async () => {
+      try {
+          // Call the getUser function from the smart contract
+          const result = await App.capstone.methods.getUser().call({ from: App.account });
+  
+          // Update the UI or perform actions based on the result
+          console.log('User details:', result);
+      } catch (error) {
+          console.error('Error getting user details:', error);
+      }
+  },
+  logout: async () =>{
+    App.setLoggedin(false)
+  }
     
 }
+
 $(() => {
     $(window).load(() =>{
         App.load()
