@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="sign_up.css">
+    <title>Signup Page</title>
+</head>
+<body>
+    <header>
+        <nav>
+            <img src="images/Logo.png" alt="Your Startup Logo" class="logo">
+            <ul>
+                <li><a href="index.html">Services Offered</a></li>
+                <li><a href="landing.html">Home page</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="#about">About us</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="signup-container">
+        <h2>Create an Account</h2>
+        <form action="#" method="post" id="signupForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required pattern="[A-Za-z ]+" title="Name should consist of letters only">
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Phone Number:</label>
+            <input type="tel" id="phone" name="phone" required pattern="[0-9]{10}" title="Phone number should be 10 digits">
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required pattern="(?=.*[0-9].*[0-9])([A-Za-z0-9]{8,})" 
+                   title="Password should have a minimum of 8 characters and 2 numbers">
+
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+</body>
+</html>
