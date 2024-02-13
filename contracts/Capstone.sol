@@ -6,7 +6,6 @@ contract Capstone{
     struct Join {
         uint id;
         string name;
-        string content;
         bool joined;
     }
     mapping(uint => Join)public user;
@@ -15,7 +14,6 @@ contract Capstone{
     event UserCreated(
         uint id,
         string name,
-        string content,
         bool joined
 
 
@@ -23,13 +21,13 @@ contract Capstone{
     
 
     constructor() public{
-        createUser("defaultUser", "Checking the project");
+        createUser("defaultCID");
     }
 
-    function createUser(string memory _name, string memory _content) public{
+    function createUser(string memory _name) public{
         userCount ++;
-        user[userCount] = Join(userCount, _name, _content, false);
-        emit UserCreated(userCount, _name, _content, false);
+        user[userCount] = Join(userCount, _name, false);
+        emit UserCreated(userCount, _name,  false);
     }
 
 }
